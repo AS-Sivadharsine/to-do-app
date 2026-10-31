@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My To-Do</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+<style>
+:root{--bg:#06130d;--card:#0f2a1d;--c2:#16382a;--txt:#e6f4ea;--mut:#86ad95;--acc:#6fd9a0;--line:#21503a;--on:#06130d}
+[data-t=light]{--bg:#e8f5ec;--card:#fff;--c2:#dff0e5;--txt:#173326;--mut:#5f8a72;--acc:#2e8b57;--line:#cfe6d7;--on:#fff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:Georgia,serif;background:var(--bg);color:var(--txt);min-height:100vh;padding-bottom:90px;transition:.3s}
+.wrap{max-width:640px;margin:0 auto;padding:18px}
+h1{font-size:30px;margin:4px 0}h2{font-size:18px;margin:18px 0 8px;color:var(--acc)}
+.sub,.meta{color:var(--mut);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px}
+.row{display:flex;align-items:center;gap:12px}.grow{flex:1;min-width:0}
+.hero{display:flex;justify-content:space-between;align-items:center;gap:10px;background:linear-gradient(135deg,#14532d,#0b3a2c 60%,#06130d);color:#fff;border-radius:24px;padding:20px;margin-bottom:12px;box-shadow:0 10px 30px #0006}
+.hero .meta{color:#bfe6cd}
+.chips{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px}
+.chips span,.fl button{white-space:nowrap;background:var(--c2);color:var(--txt);border-radius:20px;padding:7px 13px;font-size:13px;border:none;font-family:inherit;cursor:pointer}
+.chips .late{background:#4a1a26;color:#f3a9b6}
+.fl{display:flex;gap:8px;margin-bottom:12px}.fl .on{background:var(--acc);color:var(--on);font-weight:700}
+.lc{color:#fff;border:none;cursor:pointer;box-shadow:0 8px 20px #0004;transition:transform .2s}.lc:active{transform:scale(.98)}
+.lc .meta{color:#ffffffbb}.lc .bar{background:#ffffff30}.lc .bar>i{background:#fff}
+.lc .chk{border-color:#fff;color:#111}.lc .chk.on{background:#fff}
+.av{width:50px;height:50px;border-radius:50%;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:24px;flex:none;border:2px solid #ffffff55}
+.av.big{width:80px;height:80px;font-size:38px;cursor:pointer}
+.name{font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{height:9px;background:var(--c2);border-radius:9px;overflow:hidden;margin-top:9px}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#2e8b57,var(--acc));border-radius:9px;transition:width .5s}
+.chk{width:28px;height:28px;border-radius:9px;border:2px solid var(--acc);background:transparent;color:var(--on);font-size:17px;font-weight:900;flex:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.chk.on{background:var(--acc);animation:pop .3s}
+@keyframes pop{50%{transform:scale(1.35)}}
+.x{background:none;border:none;color:#e0788a;font-size:19px;cursor:pointer;padding:4px 7px}
+.btn{background:var(--acc);color:var(--on);border:none;border-radius:13px;padding:11px 16px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn.ghost{background:var(--c2);color:var(--txt)}
+input[type=text],input[type=date],select{width:100%;background:var(--c2);border:1px solid var(--line);color:var(--txt);border-radius:13px;padding:11px;font-size:15px;font-family:inherit}
+.done .tx{text-decoration:line-through;color:var(--mut)}
+.badge{font-size:12px;padding:2px 9px;border-radius:10px;background:var(--c2);color:var(--acc);margin-right:5px}
+.badge.late{background:#4a1a26;color:#f3a9b6}
+.win{background:linear-gradient(135deg,#14532d,#2e8b57);color:#fff;text-align:center;font-weight:700}
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;gap:4px;padding:8px}
+.nav button{flex:1;max-width:125px;background:none;border:none;color:var(--mut);padding:10px 4px;border-radius:12px;font-size:13px;font-family:inherit;cursor:pointer}
+.nav button.on{background:var(--c2);color:var(--acc);font-weight:700}
+.fab{position:fixed;right:20px;bottom:82px;width:60px;height:60px;border-radius:50%;font-size:32px;box-shadow:0 8px 24px #0007}
+.modal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;padding:20px;z-index:9}
+.modal .card{width:100%;max-width:400px;margin:0}
+.ring{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.ring b{width:72px;height:72px;border-radius:50%;background:var(--card);color:var(--txt);display:flex;align-items:center;justify-content:center;font-size:20px}
+.sw{width:34px;height:34px;border-radius:50%;border:3px solid transparent;cursor:pointer;flex:none}.sw.on{border-color:var(--acc)}
+.em{font-size:24px;background:var(--c2);border:2px solid transparent;border-radius:12px;padding:4px 7px;cursor:pointer}.em.on{border-color:var(--acc)}
+.empty{text-align:center;color:var(--mut);padding:30px 10px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useEffect, useState } = React;
+const COL = ["#14532d", "#7a1f2e", "#1f3a6b", "#0f766e", "#4c2a7a", "#111827"];
+const EMO = ["📚", "🏠", "💼", "🛒", "💪", "🎯", "✈️", "🎨"];
+const PRI = [["Low", "#6fd9a0"], ["Medium", "#7ab8f5"], ["High", "#e0788a"]];
+const uid = () => Math.random().toString(36).slice(2, 9);
+const me = (() => { try { let u = localStorage.getItem("uid"); if (!u) { u = uid() + uid() + uid(); localStorage.setItem("uid", u); } return u; } catch (e) { return uid() + uid() + uid(); } })();
+const today = () => new Date().toLocaleDateString("en-CA");
+const fmt = (d) => new Date(d + "T00:00").toLocaleDateString(undefined, { day: "numeric", month: "short" });
+const done = (l) => l.tasks.filter((t) => t.done).length;
+const pct = (l) => (l.tasks.length ? Math.round((done(l) * 100) / l.tasks.length) : 0);
+const full = (l) => l.tasks.length > 0 && done(l) === l.tasks.length;
+const shrink = (file, cb) => {
+  const r = new FileReader();
+  r.onload = () => {
+    const im = new Image();
+    im.onload = () => {
+      const c = document.createElement("canvas");
+      c.width = c.height = 140;
+      const s = Math.min(im.width, im.height);
+      c.getContext("2d").drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, 0, 0, 140, 140);
+      cb(c.toDataURL("image/jpeg", 0.8));
+    };
+    im.src = r.result;
+  };
+  r.readAsDataURL(file);
+};
+
+function Avatar({ l, big }) {
+  const c = "av" + (big ? " big" : "");
+  return l.img ? <img className={c} src={l.img} alt="" /> : <div className={c} style={{ background: l.col }}>{l.emoji || "📋"}</div>;
+}
+
+function TaskRow({ l, t, showList, tog, del }) {
+  const late = !t.done && t.due && t.due < today();
+  const pr = PRI[t.pri || 0];
+  return (
+    <div className={"card row " + (t.done ? "done" : "")} style={{ borderLeft: "5px solid " + pr[1] }}>
+      <button className={"chk " + (t.done ? "on" : "")} onClick={() => tog(l.id, t.id)}>{t.done ? "✓" : ""}</button>
+      <div className="grow">
+        <div className="tx">{t.text}</div>
+        <div className="meta">
+          {showList && <span className="badge">{l.emoji} {l.name}</span>}
+          {t.due && <span className={"badge " + (late ? "late" : "")}>📅 {fmt(t.due)}</span>}
+          <span style={{ color: pr[1] }}>● {pr[0]}</span>
+        </div>
+      </div>
+      <button className="x" onClick={() => del(l.id, t.id)}>🗑</button>
+    </div>
+  );
+}
+
+function NewList({ onCreate, onClose }) {
+  const [name, setName] = useState("");
+  const [img, setImg] = useState(null);
+  const [emoji, setEmoji] = useState(EMO[0]);
+  const [col, setCol] = useState(COL[0]);
+  return (
+    <div className="modal"><div className="card">
+      <h2 style={{ marginTop: 0 }}>New list</h2>
+      <input type="text" placeholder="Title (e.g. Study, Home)" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+      <div className="meta" style={{ margin: "12px 0 6px" }}>Colour</div>
+      <div className="row" style={{ flexWrap: "wrap", gap: 8 }}>{COL.map((c) => <div key={c} className={"sw " + (c === col ? "on" : "")} style={{ background: c }} onClick={() => setCol(c)} />)}</div>
+      <div className="meta" style={{ margin: "12px 0 6px" }}>Icon</div>
+      <div className="row" style={{ flexWrap: "wrap", gap: 6 }}>{EMO.map((e) => <span key={e} className={"em " + (e === emoji ? "on" : "")} onClick={() => setEmoji(e)}>{e}</span>)}</div>
+      <div className="row" style={{ margin: "14px 0" }}>
+        {img ? <img className="av" src={img} alt="" /> : <div className="av" style={{ background: col }}>{emoji}</div>}
+        <label className="btn ghost">📷 Photo from gallery
+          <input type="file" accept="image/*" hidden onChange={(e) => e.target.files[0] && shrink(e.target.files[0], setImg)} />
+        </label>
+      </div>
+      <div className="row">
+        <button className="btn ghost grow" onClick={onClose}>Cancel</button>
+        <button className="btn grow" onClick={() => name.trim() && onCreate(name.trim(), img, emoji, col)}>Create</button>
+      </div>
+    </div></div>
+  );
+}
+
+function ListView({ l, back, upd, tog, del }) {
+  const [text, setText] = useState(""), [due, setDue] = useState(""), [pri, setPri] = useState(0), [f, setF] = useState("All");
+  const add = () => {
+    if (!text.trim()) return;
+    upd(l.id, (x) => ({ ...x, tasks: [...x.tasks, { id: uid(), text: text.trim(), due, pri: +pri, done: false }] }));
+    setText(""); setDue("");
+  };
+  const shown = l.tasks.filter((t) => f === "All" || (f === "Done") === t.done);
+  return (
+    <>
+      <button className="btn ghost" onClick={back}>← Back</button>
+      <div className="row" style={{ margin: "16px 0" }}>
+        <label><Avatar l={l} big />
+          <input type="file" accept="image/*" hidden onChange={(e) => e.target.files[0] && shrink(e.target.files[0], (d) => upd(l.id, (x) => ({ ...x, img: d })))} />
+        </label>
+        <div className="grow">
+          <h1 style={{ margin: 0 }}>{l.name}</h1>
+          <div className="meta">Tap the picture to change it</div>
+        </div>
+        <button className="x" style={{ color: "var(--acc)" }} onClick={() => { const n = prompt("Rename list", l.name); if (n && n.trim()) upd(l.id, (x) => ({ ...x, name: n.trim() })); }}>✏</button>
+      </div>
+      {full(l) && <div className="card win">🎉 All tasks done. Great job!</div>}
+      <div className="card"><div className="meta">{done(l)}/{l.tasks.length} done · {pct(l)}%</div><div className="bar"><i style={{ width: pct(l) + "%" }} /></div></div>
+      <div className="card">
+        <input type="text" placeholder="New task…" value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && add()} />
+        <div className="row" style={{ marginTop: 8 }}>
+          <input type="date" value={due} onChange={(e) => setDue(e.target.value)} />
+          <select value={pri} onChange={(e) => setPri(e.target.value)}>{PRI.map((p, i) => <option key={i} value={i}>{p[0]}</option>)}</select>
+        </div>
+        <button className="btn" style={{ width: "100%", marginTop: 8 }} onClick={add}>＋ Add task</button>
+      </div>
+      <div className="fl">{["All", "Pending", "Done"].map((x) => <button key={x} className={f === x ? "on" : ""} onClick={() => setF(x)}>{x}</button>)}</div>
+      {!shown.length && <div className="empty">Nothing here yet.</div>}
+      {shown.map((t) => <TaskRow key={t.id} l={l} t={t} tog={tog} del={del} />)}
+      <button className="btn ghost" onClick={() => upd(l.id, (x) => ({ ...x, tasks: x.tasks.filter((t) => !t.done) }))}>Clear completed</button>
+    </>
+  );
+}
+
+function App() {
+  const [lists, setLists] = useState([]), [ready, setReady] = useState(false), [error, setError] = useState(false);
+  const [view, setView] = useState("home"), [cur, setCur] = useState(null), [modal, setModal] = useState(false), [q, setQ] = useState("");
+  const [th, setTh] = useState(() => { try { return localStorage.getItem("th") || "dark"; } catch (e) { return "dark"; } });
+  useEffect(() => { document.documentElement.dataset.t = th; try { localStorage.setItem("th", th); } catch (e) {} }, [th]);
+  useEffect(() => { fetch("/api/lists/" + me).then((r) => r.json()).then((d) => { setLists(d); setReady(true); }).catch(() => setError(true)); }, []);
+  useEffect(() => { if (ready) fetch("/api/lists/" + me, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(lists) }); }, [lists, ready]);
+
+  const upd = (id, fn) => setLists((ls) => ls.map((l) => (l.id === id ? fn(l) : l)));
+  const tog = (lid, tid) => upd(lid, (l) => ({ ...l, tasks: l.tasks.map((t) => (t.id === tid ? { ...t, done: !t.done } : t)) }));
+  const delTask = (lid, tid) => upd(lid, (l) => ({ ...l, tasks: l.tasks.filter((t) => t.id !== tid) }));
+  const open = (id) => { setCur(id); setView("list"); };
+  const toggleAll = (l) => l.tasks.length ? upd(l.id, (x) => ({ ...x, tasks: x.tasks.map((t) => ({ ...t, done: !full(x) })) })) : open(l.id);
+  const delList = (id) => confirm("Delete this list and all its tasks?") && setLists((ls) => ls.filter((l) => l.id !== id));
+  const create = (name, img, emoji, col) => { setLists((ls) => [{ id: uid(), name, img, emoji, col, tasks: [] }, ...ls]); setModal(false); };
+
+  if (error) return <div className="wrap empty">Cannot reach the Python server.<br />Start it with: python server.py</div>;
+  if (!ready) return <div className="wrap empty">Loading… (first time can take a minute)</div>;
+
+  const td = today();
+  const pending = lists.flatMap((l) => l.tasks.filter((t) => !t.done).map((t) => [l, t]));
+  const byDate = (a, b) => (a[1].due || "9").localeCompare(b[1].due || "9");
+  const upcoming = pending.filter(([, t]) => !t.due || t.due >= td).sort(byDate);
+  const overdue = pending.filter(([, t]) => t.due && t.due < td).sort(byDate);
+  const all = lists.reduce((n, l) => n + l.tasks.length, 0), dn = lists.reduce((n, l) => n + done(l), 0);
+  const p = all ? Math.round((dn * 100) / all) : 0;
+  const curList = lists.find((l) => l.id === cur);
+  const shownLists = lists.filter((l) => l.name.toLowerCase().includes(q.toLowerCase()));
+  const tabs = [["home", "📋 Lists"], ["upcoming", "⏰ Upcoming"], ["overdue", "⚠ Overdue" + (overdue.length ? ` (${overdue.length})` : "")], ["progress", "📊 Progress"]];
+  const taskList = (items, msg) => items.length ? items.map(([l, t]) => <TaskRow key={t.id} l={l} t={t} showList tog={tog} del={delTask} />) : <div className="empty">{msg}</div>;
+  const Ring = <div className="ring" style={{ background: `conic-gradient(#6fd9a0 ${p * 3.6}deg, #ffffff30 0)` }}><b>{p}%</b></div>;
+
+  return (
+    <>
+      <div className="wrap">
+        {view === "home" && (<>
+          <div className="hero">
+            <div>
+              <div className="meta">{new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}</div>
+              <h1>Hello! 👋</h1>
+              <div className="meta">{dn} of {all} tasks completed</div>
+              <button className="btn ghost" style={{ marginTop: 10, padding: "6px 12px", fontSize: 13 }} onClick={() => setTh(th === "dark" ? "light" : "dark")}>{th === "dark" ? "☀ Pastel mode" : "🌙 Dark mode"}</button>
+            </div>
+            {Ring}
+          </div>
+          <div className="chips"><span>📋 {lists.length} lists</span><span>⏰ {upcoming.length} upcoming</span><span className="late">⚠ {overdue.length} overdue</span></div>
+          <input type="text" placeholder="🔍 Search lists…" value={q} onChange={(e) => setQ(e.target.value)} style={{ marginBottom: 12 }} />
+          {!lists.length && <div className="empty">No lists yet.<br />Tap + to create your first title.</div>}
+          {shownLists.map((l) => (
+            <div className="card lc" key={l.id} style={{ background: `linear-gradient(135deg,${l.col},${l.col}bb)` }}>
+              <div className="row">
+                <button className={"chk " + (full(l) ? "on" : "")} onClick={() => toggleAll(l)}>{full(l) ? "✓" : ""}</button>
+                <div className="row grow" onClick={() => open(l.id)}>
+                  <Avatar l={l} />
+                  <div className="grow"><div className="name">{l.name}</div><div className="meta">{done(l)}/{l.tasks.length} done · {pct(l)}%</div></div>
+                </div>
+                <button className="x" onClick={() => delList(l.id)}>🗑</button>
+              </div>
+              <div className="bar"><i style={{ width: pct(l) + "%" }} /></div>
+            </div>
+          ))}
+          <button className="btn fab" onClick={() => setModal(true)}>+</button>
+        </>)}
+        {view === "list" && (curList ? <ListView l={curList} back={() => setView("home")} upd={upd} tog={tog} del={delTask} /> : <button className="btn" onClick={() => setView("home")}>Back</button>)}
+        {view === "upcoming" && <><h1>⏰ Upcoming</h1><div className="sub">Tasks still to do, soonest first</div>{taskList(upcoming, "Nothing upcoming.")}</>}
+        {view === "overdue" && <><h1>⚠ Overdue</h1><div className="sub">Not finished before the date</div>{taskList(overdue, "Nothing overdue. Great work!")}</>}
+        {view === "progress" && (<>
+          <h1>📊 Progress</h1><div className="sub">How much you have completed</div>
+          <div className="hero">{Ring}<div style={{ textAlign: "right" }}><div className="name">Overall</div><div className="meta">{dn} of {all} tasks done</div></div></div>
+          <h2>By list</h2>
+          {!lists.length && <div className="empty">Create a list to see its graph.</div>}
+          {lists.map((l) => (
+            <div className="card" key={l.id}>
+              <div className="row"><Avatar l={l} /><div className="grow"><div className="name">{l.name}</div><div className="meta">{done(l)}/{l.tasks.length} tasks</div></div><b style={{ fontSize: 22, color: "var(--acc)" }}>{pct(l)}%</b></div>
+              <div style={{ display: "flex", gap: 5, alignItems: "flex-end", height: 80, marginTop: 12 }}>
+                {l.tasks.length ? l.tasks.map((t) => <div key={t.id} title={t.text} style={{ flex: 1, maxWidth: 38, borderRadius: "6px 6px 0 0", height: t.done ? "100%" : "18%", background: t.done ? l.col : "var(--c2)", transition: ".4s" }} />) : <span className="meta">No tasks</span>}
+              </div>
+            </div>
+          ))}
+        </>)}
+      </div>
+      <div className="nav">{tabs.map(([k, n]) => <button key={k} className={view === k || (view === "list" && k === "home") ? "on" : ""} onClick={() => setView(k)}>{n}</button>)}</div>
+      {modal && <NewList onCreate={create} onClose={() => setModal(false)} />}
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
